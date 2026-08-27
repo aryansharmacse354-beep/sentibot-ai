@@ -46,7 +46,7 @@ export const SettingsTheme: React.FC<SettingsThemeProps> = ({ isOpen, onClose })
               <SlidersHorizontal className="w-5 h-5" />
               <h3 className="text-lg font-bold text-slate-100">Portal Preferences & Theme</h3>
             </div>
-            <p className="text-xs text-slate-400 mb-6">Customize SentiBot AI's UI theme and simulate network disruptions.</p>
+            <p className="text-xs text-slate-400 mb-6">Customize SentiBot AI&apos;s UI theme and simulate network disruptions.</p>
 
             {/* Dark / Light Toggle */}
             <div className="space-y-4">

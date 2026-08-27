@@ -107,7 +107,7 @@ export const VoiceHUD: React.FC<VoiceHUDProps> = ({ isOpen, onClose }) => {
             {/* Live Transcript Display */}
             <div className="w-full min-h-[4rem] p-3 rounded-xl bg-slate-950/50 border border-slate-800/80 text-center mb-6">
               {transcript ? (
-                <p className="text-sm font-medium text-teal-300 italic">"{transcript}"</p>
+                <p className="text-sm font-medium text-teal-300 italic">&quot;{transcript}&quot;</p>
               ) : error ? (
                 <p className="text-xs text-rose-400">{error}</p>
               ) : (
