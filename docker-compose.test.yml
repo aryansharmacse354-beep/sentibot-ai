@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["npm", "run", "lint"]
+    environment:
+      - NODE_ENV=test

@@ -1,0 +1,22 @@
+asyncapi: 3.0.0
+info:
+  title: SentiBot AI Real-Time WebSocket Channel
+  version: 1.0.0
+  description: Real-time event streams for Supabase escalation triggers and live message synchronization.
+channels:
+  escalationEvents:
+    address: public:escalations
+    messages:
+      escalationTriggered:
+        payload:
+          type: object
+          properties:
+            session_id:
+              type: string
+            customer_anger_level:
+              type: number
+            reason:
+              type: string
+            status:
+              type: string
+              example: "OPEN"

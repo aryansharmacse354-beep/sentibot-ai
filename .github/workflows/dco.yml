@@ -1,0 +1,12 @@
+name: Developer Certificate of Origin (DCO) Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  dco:
+    runs-on: ubuntu-latest
+    steps:
+      - name: DCO Check
+        uses: zoispag/dco-action@v1.1.0

@@ -1,0 +1,6 @@
+# SentiBot AI Cursor & Claude System Rules
+
+1. Always preserve types defined in `src/context/SentiBotContext.tsx` and `src/lib/apiClient.ts`.
+2. Do not remove glassmorphism CSS variable maps from `src/app/globals.css`.
+3. Ensure all user inputs pass through security guardrails (`guardrails.py` and `route.ts`).
+4. Maintain team signature branding in `MainLayout.tsx`: Team Name: AI Experts | Team Leader: Aryan Sharma.

@@ -1,0 +1,15 @@
+# CODEOWNERS - Subsystem Ownership & Security Controls
+
+# Core maintainers
+* @aryansharmacse354-beep
+
+# Emotion Classifier & NLP Engine
+/api/services/emotion_engine.py @aryansharmacse354-beep
+/api/services/llm_orchestrator.py @aryansharmacse354-beep
+
+# Security Guardrails & Anti-Jailbreak Middleware
+/api/middleware/guardrails.py @aryansharmacse354-beep
+/src/app/api/chat/route.ts @aryansharmacse354-beep
+
+# Database & Vectors
+/supabase/ @aryansharmacse354-beep
