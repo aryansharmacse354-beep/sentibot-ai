@@ -1,36 +1,49 @@
-import os
 import logging
 from typing import Dict, Any
 
 logger = logging.getLogger("sentibot.emotion")
 
+_pipeline = None
+
+def get_emotion_pipeline():
+    global _pipeline
+    if _pipeline is None:
+        try:
+            from transformers import pipeline
+            import torch
+            device = 0 if torch.cuda.is_available() else -1
+            logger.info(f"Loading local PyTorch emotion pipeline on device: {'GPU' if device == 0 else 'CPU'}")
+            _pipeline = pipeline(
+                "text-classification",
+                model="j-hartmann/emotion-english-distilroberta-base",
+                return_all_scores=True,
+                device=device
+            )
+        except Exception as e:
+            logger.warning(f"Could not load local HuggingFace PyTorch pipeline ({e}). Using rule-based fallback.")
+            _pipeline = "fallback"
+    return _pipeline
+
 def analyze_sentiment(text: str) -> Dict[str, Any]:
     """
-    Analyzes sentiment of input text using HuggingFace Inference API or lightweight emotion engine.
+    Analyzes sentiment of input text using local PyTorch HuggingFace DistilRoBERTa model.
     """
-    hf_token = os.getenv("HUGGINGFACE_AUTH_TOKEN")
-    
-    if hf_token:
-        try:
-            import requests
-            api_url = "https://api-inference.huggingface.co/models/j-hartmann/emotion-english-distilroberta-base"
-            headers = {"Authorization": f"Bearer {hf_token}"}
-            response = requests.post(api_url, headers=headers, json={"inputs": text}, timeout=3)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if isinstance(data, list) and len(data) > 0 and isinstance(data[0], list):
-                    scores = data[0]
-                    best = max(scores, key=lambda x: x['score'])
-                    return {
-                        "label": best['label'],
-                        "confidence": round(best['score'], 4),
-                        "scores": {item['label']: round(item['score'], 4) for item in scores}
-                    }
-        except Exception as err:
-            logger.warning(f"HuggingFace REST Inference API call skipped: {err}")
+    pipe = get_emotion_pipeline()
 
-    # High-precision heuristic emotion analysis
+    if pipe != "fallback" and pipe is not None:
+        try:
+            results = pipe(text)[0]
+            best = max(results, key=lambda x: x['score'])
+            scores_dict = {item['label']: round(item['score'], 4) for item in results}
+            return {
+                "label": best['label'],
+                "confidence": round(best['score'], 4),
+                "scores": scores_dict
+            }
+        except Exception as err:
+            logger.error(f"Error during PyTorch HuggingFace inference: {err}")
+
+    # Fallback heuristic classifier
     lower = text.lower()
     if any(w in lower for w in ['angry', 'terrible', 'horrible', 'hate', 'scam', 'rage', 'broken', 'sucks', 'furious']):
         return {"label": "anger", "confidence": 0.92, "scores": {"anger": 0.92, "neutral": 0.08}}
