@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentibot-web
+  namespace: default
+  labels:
+    app: sentibot-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sentibot-web
+  template:
+    metadata:
+      labels:
+        app: sentibot-web
+    spec:
+      containers:
+        - name: web
+          image: aryansharmacse354/sentibot-web:v1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: sentibot-config
+            - secretRef:
+                name: sentibot-secrets
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentibot-api
+  namespace: default
+  labels:
+    app: sentibot-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sentibot-api
+  template:
+    metadata:
+      labels:
+        app: sentibot-api
+    spec:
+      containers:
+        - name: emotion-api
+          image: aryansharmacse354/sentibot-api-pytorch:v1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: sentibot-config
+            - secretRef:
+                name: sentibot-secrets
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1000m"
+            limits:
+              memory: "8Gi"
+              cpu: "4000m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5

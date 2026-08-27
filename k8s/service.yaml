@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentibot-web-service
+  namespace: default
+  labels:
+    app: sentibot-web
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app: sentibot-web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sentibot-api-service
+  namespace: default
+  labels:
+    app: sentibot-api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  selector:
+    app: sentibot-api
