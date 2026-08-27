@@ -63,6 +63,12 @@ export function runLocalPatternMatcher(userText: string): ChatApiResponse {
   };
 }
 
+export function getApiEndpoint(): string {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  if (!baseUrl) return '/api/chat';
+  return `${baseUrl.replace(/\/$/, '')}/api/chat`;
+}
+
 export async function sendChatMessage(
   message: string,
   history: ChatMessage[],
@@ -78,8 +84,9 @@ export async function sendChatMessage(
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000); // 8000ms timeout threshold
+    const endpoint = getApiEndpoint();
 
-    const response = await fetch('/api/chat', {
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

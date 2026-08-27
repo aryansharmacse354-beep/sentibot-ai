@@ -23,6 +23,25 @@ export async function POST(req: NextRequest) {
     const message: string = body.message || '';
     const history: Array<{ role: string; content: string }> = body.history || [];
 
+    // Proxy to external Render backend if configured
+    const backendUrl = process.env.BACKEND_API_URL || process.env.NEXT_PUBLIC_API_URL;
+    if (backendUrl && !backendUrl.includes('localhost')) {
+      try {
+        const targetUrl = `${backendUrl.replace(/\/$/, '')}/api/chat`;
+        const proxyRes = await fetch(targetUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (proxyRes.ok) {
+          const data = await proxyRes.json();
+          return NextResponse.json(data);
+        }
+      } catch (proxyErr) {
+        console.warn("Proxy to Render backend failed, executing Next.js serverless fallback:", proxyErr);
+      }
+    }
+
     // Guardrail Check (Prompt 13)
     for (const pattern of INJECTION_PATTERNS) {
       if (pattern.test(message)) {

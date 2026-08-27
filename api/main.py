@@ -12,6 +12,8 @@ from api.services.llm_orchestrator import generate_llm_response
 from api.routers.rag_faq import query_rag_vector_faq
 from api.routers.escalation import process_escalation_trigger
 
+import os
+
 # Configure structured JSON logger
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("sentibot.api")
@@ -22,12 +24,25 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configure CORS
+# Parse CORS Origins from Environment
+env_origins = os.environ.get("ALLOWED_ORIGINS", "")
+allowed_origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://chatbot-sable-six-21.vercel.app",
+    "https://chatbot-n0mr885fc-ai-experts1.vercel.app",
+    "https://sentibot-ai.vercel.app"
+]
+if env_origins:
+    allowed_origins.extend([o.strip() for o in env_origins.split(",") if o.strip()])
+
+# Configure CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "*"],
+    allow_origins=allowed_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -116,3 +131,8 @@ async def global_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content={"error": "Internal Processing Issue", "details": str(exc)}
     )
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("api.main:app", host="0.0.0.0", port=port, reload=False)
